@@ -67,7 +67,7 @@ export async function createWarishApplication(data: Prisma.WarishApplicationCrea
     const existingApplication = await db.warishApplication.findFirst({
       where: {
         acknowlegment: data.acknowlegment,
-        gpProfileId: data.gpProfileId,
+
       },
     });
 
