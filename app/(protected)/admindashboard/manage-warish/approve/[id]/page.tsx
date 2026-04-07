@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     notFound();
   }
 
-  const typedApplication = application as WarishApplicationProps;
+  const typedApplication = application as unknown as WarishApplicationProps;
 
   // Build the tree structure for warishDetails
   const warishDetailsMap = createWarishDetailsMap(

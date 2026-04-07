@@ -23,7 +23,7 @@ async function getWarishApplications() {
     orderBy: {
       reportingDate: "desc",
     },
-  })) as WarishApplicationProps[];
+  })) as unknown as WarishApplicationProps[];
 }
 
 export default async function PendingWarishApplications() {
