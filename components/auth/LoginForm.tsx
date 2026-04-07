@@ -150,29 +150,7 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 p-4">
       <Card className="w-full max-w-md border-none shadow-2xl bg-white/90 backdrop-blur-sm">
-        <CardHeader className="space-y-4 px-8 pt-10 pb-4 text-center">
-          <div className="flex justify-center">
-            <Link href="/" className="flex-shrink-0 hover:opacity-90 transition-opacity">
-              <Image
-                src="/images/logo.png"
-                width={100}
-                height={35}
-                alt="Dhalpara Gram Panchayat Logo"
-                className="object-contain"
-                priority
-              />
-            </Link>
-          </div>
-          <div>
-            <CardTitle className="text-2xl font-bold text-foreground">
-              {showTwoFactor ? "Verify Your Identity" : "Welcome Back"}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              {showTwoFactor ? "Enter the code from your authenticator app" : "Sign in to access your account"}
-            </p>
-          </div>
-        </CardHeader>
-
+       
         <CardContent className="px-6 py-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
