@@ -1,0 +1,256 @@
+
+'use server'
+import { currentUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { utapi } from "@/server/uploadthings";
+import { revalidatePath ,revalidateTag} from 'next/cache'
+
+import { redirect } from 'next/navigation'
+import * as z from "zod";
+import { CreateUserSchema } from "@/schema";
+import bcrypt from "bcryptjs";
+
+export const createUser = async (values: z.infer<typeof CreateUserSchema>) => {
+  const currentUsers = await currentUser();
+
+  if (!currentUsers || currentUsers.role !== "admin") {
+    return { error: "Unauthorized. Only admins can create users." };
+  }
+
+  const parseResult = CreateUserSchema.safeParse(values);
+
+  if (!parseResult.success) {
+    return { error: "Invalid fields!" };
+  }
+
+  const { email, password, name, role, mobileNumber, designation, agencyDetailsId } = parseResult.data;
+
+  try {
+    const normalizedEmail = email.toLowerCase();
+    const existingUser = await db.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingUser) {
+      return { error: "Email is already in use!" };
+    }
+
+    if (role === "staff" && currentUsers.role === "admin") {
+      const adminDetails = await db.user.findUnique({
+        where: { id: currentUsers.id },
+        include: { gpProfile: true }
+      });
+
+      if (adminDetails?.gpProfileId) {
+        const staffCount = await db.user.count({
+          where: { role: "staff", gpProfileId: adminDetails.gpProfileId }
+        });
+        
+        if (adminDetails.gpProfile && staffCount >= adminDetails.gpProfile.staffLimit) {
+          return { error: "Staff limit reached for this Gram Panchayat." };
+        }
+      }
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Get the gpProfileId to associate with the new user
+    let newGpProfileId = null;
+    const adminUser = await db.user.findUnique({ where: { id: currentUsers.id } });
+    if (adminUser?.gpProfileId) {
+      newGpProfileId = adminUser.gpProfileId;
+    }
+
+    const user = await db.user.create({
+      data: {
+        name,
+        email: normalizedEmail,
+        password: hashedPassword,
+        role,
+        mobileNumber,
+        designation: role === "staff" ? designation : null,
+        agencyDetailsId: role === "agency" ? agencyDetailsId : null,
+        gpProfileId: newGpProfileId, // Inherit GP Profile ID from creator
+        emailVerified: new Date(), // Admins creating users skip verification
+      },
+    });
+
+    revalidatePath("/admindashboard/user");
+    return { success: "User created successfully", user };
+  } catch (error) {
+    console.error("User creation error:", error);
+    return { error: "An unexpected error occurred. Please try again." };
+  }
+};
+
+export const userProfileUpdate = async (
+  id: string | undefined,
+  name: string | undefined
+) => {
+  try {
+    const user = await db.user.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+      },
+    });
+    
+    
+    revalidatePath('/dashboard/profile')
+return { success: "Date is updated...." };
+    
+  } catch (error) {
+    return { error: "Date is not upadated ...." };
+  }
+};
+
+export const userProfileImage = async (imageurl: string, imageKey: string) => {
+  const cuser = await currentUser();
+  const id = cuser?.id;
+
+  try {
+    const findpreimage = await db.user.findUnique({
+      where: { id },
+    });
+
+    if (findpreimage) {
+      const { image, imageKey } = findpreimage;
+
+      const previmagekey = imageKey;
+
+      if (image !== null && previmagekey !== null) {
+        await utapi.deleteFiles(previmagekey);
+      }
+    }
+
+    await db.user.update({
+      where: {
+        id,
+      },
+      data: {
+        image: imageurl,
+        imageKey,
+      },
+    });
+
+    revalidateTag("dashboard/profile/changeprofileimage");
+    return { success: "Profile image uploaded successfully" };
+  } catch (error) {
+    // Handle error appropriately
+    console.error(error);
+    return { error: "An error occurred while uploading profile image" };
+  }
+};
+
+export type UserRole = 'user' | 'admin' | 'staff' | 'superadmin' | 'agency'
+export async function toggleTwoFactor(userIds: string[], enable: boolean) {
+  try {
+    await db.user.updateMany({
+      where: {
+        id: {
+          in: userIds
+        }
+      },
+      data: {
+        isTwoFactorEnabled: enable
+      }
+    })
+    return { success: true, message: `Two-factor authentication ${enable ? 'enabled' : 'disabled'} for selected users.` }
+  } catch (error) {
+    console.error('Error updating users:', error)
+    return { success: false, message: 'Failed to update users. Please try again.' }
+  }
+}
+
+export async function getUsers() {
+  try {
+    const users = await db.user.findMany({
+      
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isTwoFactorEnabled: true,
+        role: true,
+        image: true,
+        designation: true,
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    })
+    return users.map((user, index) => ({
+      ...user,
+      slno: index + 1,
+      avatar: user.image || `/placeholder.svg?height=40&width=40`
+    }))
+  } catch (error) {
+    console.error('Error fetching users:', error)
+    throw new Error('Failed to fetch users')
+  }
+}
+
+export async function updateUserRole(userId: string, role: UserRole) {
+  try {
+    await db.user.update({
+      where: { id: userId },
+      data: { role }
+    })
+    return { success: true, message: `User role updated to ${role}.` }
+  } catch (error) {
+    console.error('Error updating user role:', error)
+    return { success: false, message: 'Failed to update user role. Please try again.' }
+  }
+}
+interface UpdateUserParams {
+  id: string;
+  name: string | null;
+  image: string | null;
+  imageKey?: string | null;
+}
+
+export async function updateUser(values: UpdateUserParams) {
+  try {
+    const currentUsers = await currentUser();
+
+    if (!currentUsers) {
+      return { error: "Unauthorized" };
+    }
+
+    if (currentUsers.id !== values.id) {
+      return { error: "Unauthorized to update this user" };
+    }
+
+    // Find existing user data
+    const existingUser = await db.user.findUnique({
+      where: { id: values.id },
+    });
+
+    // Handle image deletion if there's an existing image
+    if (existingUser?.imageKey && values.image !== existingUser.image) {
+      await utapi.deleteFiles(existingUser.imageKey);
+    }
+
+    // Update user with new data
+    const updatedUser = await db.user.update({
+      where: {
+        id: values.id,
+      },
+      data: {
+        name: values.name,
+        image: values.image,
+        imageKey: values.imageKey ?? null,
+      },
+    });
+
+    revalidatePath("/");
+
+    return { success: "Profile updated successfully" };
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return { error: "Something went wrong" };
+  }
+}
+

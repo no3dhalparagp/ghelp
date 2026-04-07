@@ -1,65 +1,79 @@
-import Image from "next/image";
+import LoginForm from "@/components/auth/LoginForm";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex min-h-screen flex-col lg:flex-row bg-white">
+      {/* Left Pane - Branding & Info */}
+      <div className="relative flex flex-col justify-center flex-1 p-8 lg:p-16 bg-blue-700 text-white overflow-hidden shadow-2xl z-10">
+        {/* Abstract Background Elements */}
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-blue-600 blur-3xl opacity-50" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-blue-800 blur-3xl opacity-50" />
+        
+        <div className="relative z-20 max-w-xl mx-auto lg:mx-0 lg:max-w-2xl">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/20 shadow-lg">
+              <svg className="w-8 h-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold tracking-wide text-blue-50 uppercase">P.M.S Workflow</h2>
+          </div>
+          
+          <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-6 leading-[1.1]">
+            Panchayat Help <br/> Management System
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          
+          <p className="text-lg lg:text-xl text-blue-100 mb-10 leading-relaxed max-w-lg font-medium opacity-90">
+            A comprehensive platform to manage administrative workflows, certificates, public services, and daily operations efficiently across the Gram Panchayat.
           </p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+            <div className="flex items-start gap-4 bg-white/5 p-5 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
+              <div className="bg-green-500/20 p-2.5 rounded-lg shrink-0">
+                <svg className="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg text-white mb-1">Secure Access</h3>
+                <p className="text-sm text-blue-200 leading-snug">Role-based granular authentication & auditing across the SaaS platform.</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-4 bg-white/5 p-5 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
+              <div className="bg-orange-500/20 p-2.5 rounded-lg shrink-0">
+                <svg className="w-6 h-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg text-white mb-1">Fast Processing</h3>
+                <p className="text-sm text-blue-200 leading-snug">Accelerated application and work approvals with complete transparency.</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      {/* Right Pane - Login Form Wrapper */}
+      <div className="flex flex-col justify-center flex-1 bg-gradient-to-br from-orange-50 relative overflow-y-auto w-full">
+         <div className="absolute top-0 right-0 p-8 hidden lg:block opacity-50 pointer-events-none">
+           <svg width="120" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+             <circle cx="60" cy="60" r="59.5" stroke="#F97316" strokeDasharray="4 4" />
+             <path d="M60 20v80M20 60h80" stroke="#F97316" strokeOpacity="0.5" strokeWidth="2" />
+           </svg>
+         </div>
+
+         <div className="w-full flex justify-center items-center h-full">
+            {/* The LoginForm has internal margins/backgrounds, but letting it render natively centers it. 
+                We use a custom wrapper to override its internal min-h-screen if needed via CSS, 
+                but practically it will just stretch and center its Card nicely inside this half. */}
+            <div className="w-full max-w-2xl transform transition-transform duration-500 hover:scale-[1.01]">
+              <LoginForm />
+            </div>
+         </div>
+      </div>
     </div>
   );
 }
